@@ -1,0 +1,15 @@
+{
+  "server": "0.0.0.0:8445",
+  "users": {
+    "<TUIC_UUID>": "<TUIC_PASSWORD>"
+  },
+  "certificate": "/etc/xray/tls.crt",
+  "private_key": "/etc/xray/tls.key",
+  "congestion_control": "bbr",
+  "alpn": ["h3"],
+  "log_level": "info",
+  "udp_relay_ipv6": false,
+  "zero_rtt_handshake": false,
+  "max_idle_time": "10s",
+  "max_external_packet_size": 1500
+}

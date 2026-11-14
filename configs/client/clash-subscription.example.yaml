@@ -1,0 +1,112 @@
+# Clash / mihomo 订阅配置模板（单协议 TUIC）
+# 部署位置：/root/vpn-sub/config.yaml（由 vpn-sub 下发）
+# 替换 <SERVER_IP> / <TUIC_UUID> / <TUIC_PASSWORD>
+
+mixed-port: 7890
+allow-lan: false
+mode: rule
+find-process-mode: always
+log-level: info
+ipv6: false
+unified-delay: true
+
+dns:
+  enable: true
+  ipv6: false
+  default-nameserver: [223.5.5.5, 119.29.29.29, 114.114.114.114]
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/16
+  use-hosts: true
+  respect-rules: true
+  proxy-server-nameserver: [223.5.5.5, 119.29.29.29, 114.114.114.114]
+  nameserver: [223.5.5.5, 119.29.29.29, 114.114.114.114]
+  fallback:
+    - https://doh.dns.apple.com/dns-query
+    - tls://8.8.8.8:853
+    - tls://1.1.1.1:853
+    - https://dns.google/dns-query
+  fallback-filter:
+    geoip: true
+    geoip-code: CN
+    ipcidr: [240.0.0.0/4]
+    domain:
+      - '+.google.com'
+      - '+.google.*'
+      - '+.gstatic.com'
+      - '+.ggpht.com'
+      - '+.googleapis.com'
+      - '+.googleusercontent.com'
+      - '+.googlevideo.com'
+      - '+.youtube.com'
+      - '+.youtu.be'
+      - '+.gmail.com'
+      - '+.facebook.com'
+      - '+.fb.com'
+      - '+.twitter.com'
+      - '+.twimg.com'
+      - '+.instagram.com'
+      - '+.tiktok.com'
+      - '+.reddit.com'
+      - '+.telegram.org'
+      - '+.discord.com'
+      - '+.netflix.com'
+      - '+.spotify.com'
+      - '+.github.com'
+      - '+.githubusercontent.com'
+      - '+.openai.com'
+      - '+.anthropic.com'
+      - '+.claude.ai'
+      - '+.perplexity.ai'
+
+proxies:
+  - name: 美国-TUIC
+    type: tuic
+    server: <SERVER_IP>
+    port: 8445
+    uuid: <TUIC_UUID>
+    password: "<TUIC_PASSWORD>"
+    alpn: [h3]
+    sni: www.microsoft.com
+    skip-cert-verify: true
+    congestion-controller: bbr
+    udp-relay-mode: native
+    reduce-rtt: true
+
+proxy-groups:
+  - name: 节点选择
+    type: select
+    proxies:
+      - 美国-TUIC
+
+rules:
+  # ---- 关键代理规则（必须在 GEOIP 之前）----
+  - IP-CIDR,8.8.8.8/32,节点选择,no-resolve
+  - IP-CIDR,1.1.1.1/32,节点选择,no-resolve
+  - DOMAIN-SUFFIX,services.googleapis.cn,节点选择
+  - DOMAIN-SUFFIX,xn--ngstr-lra8j.com,节点选择   # Play 商店下载 CDN
+  - DOMAIN-SUFFIX,gvt1.com,节点选择
+  - DOMAIN-SUFFIX,gvt2.com,节点选择
+  - DOMAIN,dns.google,节点选择
+  - DOMAIN,doh.dns.apple.com,节点选择
+
+  # ---- 私有地址直连 ----
+  - IP-CIDR,127.0.0.0/8,DIRECT,no-resolve
+  - IP-CIDR,10.0.0.0/8,DIRECT,no-resolve
+  - IP-CIDR,172.16.0.0/12,DIRECT,no-resolve
+  - IP-CIDR,192.168.0.0/16,DIRECT,no-resolve
+
+  # ---- 国内域名直连（示例，按需补充）----
+  - DOMAIN-SUFFIX,cn,DIRECT
+  - DOMAIN-SUFFIX,baidu.com,DIRECT
+  - DOMAIN-SUFFIX,qq.com,DIRECT
+  - DOMAIN-SUFFIX,taobao.com,DIRECT
+  - DOMAIN-SUFFIX,alipay.com,DIRECT
+  - DOMAIN-SUFFIX,bilibili.com,DIRECT
+  - DOMAIN-SUFFIX,douyin.com,DIRECT
+  - DOMAIN-SUFFIX,jd.com,DIRECT
+  - DOMAIN-SUFFIX,163.com,DIRECT
+
+  # ---- 兜底 ----
+  - GEOSITE,cn,DIRECT
+  - GEOIP,CN,DIRECT
+  - MATCH,节点选择

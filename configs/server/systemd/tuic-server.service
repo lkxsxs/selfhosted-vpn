@@ -1,0 +1,12 @@
+[Unit]
+Description=TUIC v5 Server
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/tuic-server -c /etc/tuic/config.json
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
