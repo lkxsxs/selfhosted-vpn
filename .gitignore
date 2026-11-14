@@ -1,0 +1,16 @@
+# 敏感文件（生成的真实配置/证书/密钥/订阅文件）一律不提交
+sub.env
+*.env
+!*.env.example
+config.yaml
+*.crt
+*.key
+*.pem
+access.log
+*.log
+
+# 系统/编辑器
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
